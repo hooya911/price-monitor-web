@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Price Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body { background: #f8f9fa; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .product-row {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+        }
+        .product-row:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+            <span class="text-white">{{ username }}</span>
+        </div>
+    </nav>
+    
+    <div class="container mt-4 mb-5">
+        <h2 class="mb-4"><i class="bi bi-box"></i> Product Management</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Add Product Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Product</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_product') }}">
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" name="name" placeholder="e.g., Oral-B Toothbrush 2-pack" required>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label">Product URL</label>
+                            <input type="url" class="form-control" name="url" placeholder="https://..." required>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Target Price ($)</label>
+                            <input type="number" class="form-control" name="target_price" placeholder="0.00" step="0.01" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-gradient">
+                        <i class="bi bi-plus"></i> Add Product
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Products List -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul"></i> Your Products ({{ products|length }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if products %}
+                    {% for product in products %}
+                        <div class="product-row">
+                            <div class="row align-items-center">
+                                <div class="col-md-1 text-center">
+                                    <h5 class="text-muted mb-0">#{{ product.id }}</h5>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="mb-1">{{ product.name }}</h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-link-45deg"></i>
+                                        <a href="{{ product.url }}" target="_blank" class="text-decoration-none">View Product</a>
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <p class="mb-0">
+                                        <strong>Target:</strong> 
+                                        <span class="text-primary">${{ "%.2f"|format(product.target_price) }}</span>
+                                    </p>
+                                    {% if product.current_price %}
+                                        <p class="mb-0">
+                                            <strong>Current:</strong> 
+                                            <span class="{{ 'text-success' if product.current_price <= product.target_price else 'text-warning' }}">
+                                                ${{ "%.2f"|format(product.current_price) }}
+                                            </span>
+                                        </p>
+                                        <small class="text-muted">Last: {{ product.last_check }}</small>
+                                    {% else %}
+                                        <p class="mb-0 text-muted">Not checked yet</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2">
+                                    {% if product.current_price %}
+                                        {% if product.current_price <= product.target_price %}
+                                            <span class="badge bg-success">🎯 At Target!</span>
+                                        {% else %}
+                                            {% set diff = product.current_price - product.target_price %}
+                                            <span class="badge bg-warning">${{ "%.2f"|format(diff) }} above</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-secondary">Pending</span>
+                                    {% endif %}
+                                    <br>
+                                    <small class="{{ 'text-success' if product.enabled else 'text-danger' }}">
+                                        {{ 'Active' if product.enabled else 'Disabled' }}
+                                    </small>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-outline-primary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="POST" action="{{ url_for('toggle_product', product_id=product.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-secondary" title="Toggle">
+                                                <i class="bi bi-{{ 'pause' if product.enabled else 'play' }}"></i>
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Delete Confirmation Modal -->
+                        <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete <strong>{{ product.name }}</strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form method="POST" action="{{ url_for('delete_product', product_id=product.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 64px; color: #ccc;"></i>
+                        <h4 class="text-muted mt-3">No products yet</h4>
+                        <p class="text-muted">Add your first product using the form above!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
