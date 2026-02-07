@@ -1,1 +1,17 @@
-
+{
+    "email": {
+        "sender_email": "hooya911@gmail.com",
+        "recipient_email": "hooya911@gmail.com"
+    },
+    "products": [],
+    "last_run": {
+        "timestamp": null,
+        "products_checked": 0,
+        "deals_found": 0,
+        "email_sent": false
+    },
+    "statistics": {
+        "total_savings": 0,
+        "total_deals": 0
+    }
+}
