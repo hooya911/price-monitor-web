@@ -1,0 +1,45 @@
+═══════════════════════════════════════════════════════════
+  QUICK START - 10 MINUTES TO LIVE WEB APP!
+═══════════════════════════════════════════════════════════
+
+STEP 1: GitHub (3 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Go to: https://github.com/new
+2. Name: price-monitor-web
+3. Private repository
+4. Create
+5. Upload ALL files from web-app folder
+6. Commit
+
+STEP 2: Railway (5 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. https://railway.app/ → New Project
+2. Deploy from GitHub → price-monitor-web
+3. Go to Variables tab, add:
+
+   SECRET_KEY = 09a8f7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0
+   GMAIL_EMAIL = hooya911@gmail.com
+   GMAIL_PASSWORD = smhj utlt ekrd hcnw
+   DASHBOARD_USERNAME = ali
+   DASHBOARD_PASSWORD_HASH = ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f
+
+4. Wait for deployment (2-3 minutes)
+
+STEP 3: Access (2 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Railway shows your URL
+2. Open URL
+3. Login:
+   Username: ali
+   Password: password123
+4. You're in! 🎉
+
+STEP 4: iPhone App (Optional)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Open in Safari on iPhone
+2. Share → Add to Home Screen
+3. Done! 📱
+
+═══════════════════════════════════════════════════════════
+THAT'S IT! Your professional dashboard is live! 🚀
+═══════════════════════════════════════════════════════════
